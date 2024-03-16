@@ -72,6 +72,10 @@ exports.createCourse=async(req,res)=>{
     }
 
     catch(err){
+        return res.status(400).json({
+            success:false,
+            message:"unable to create course"
+        })
 
     }
 }

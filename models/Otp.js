@@ -1,7 +1,7 @@
 const mongoose=require("mongoose");
 const mailSender = require("../utilities/mailSender");
 
-const ratingAndReviewSchema=new mongoose.Schema({
+const otpSchema=new mongoose.Schema({
     email:{
         type:String,
         required:true,

@@ -92,6 +92,8 @@ exports.sigUp=async(req,res)=>{
             })
         }
 
+        //is something missing
+
         const recentOtp=await OTP.find({email}).sort({createdAt:-1}).limit(1)
         console.log(recentOtp)
 

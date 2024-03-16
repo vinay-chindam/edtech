@@ -29,7 +29,7 @@ const courseSchema=new mongoose.Schema({
         type:Number,
     },
     thumbnail:{
-        tyoe:String,
+        type:String,
     },
     tag:{
         typtype:mongoose.Schema.Types.ObjectId,
