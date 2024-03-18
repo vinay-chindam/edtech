@@ -1,15 +1,17 @@
 
 const User=require("../models/User")
+const Profile=require("../models/Profile")
 const OTP=require("../models/Otp")
 const otpGenerator=require("otp-generator")
 const bcrypt=require("bcrypt")
 const jwt=require("jsonwebtoken")
 require("dotenv").config()
+const mailSender = require("../utilities/mailSender")
 
 
 //otp
 
-exports.sendOtp=async(req,res)=>{
+exports.sendotp=async(req,res)=>{
     try{
         const {email}=req.body
         const checkUserPresent=await User.findOne({email})
@@ -36,10 +38,10 @@ exports.sendOtp=async(req,res)=>{
         }
         const otpPayload={email,otp}
         const otpBody=await OTP.create(otpPayload)
-        console.log(otpBody)
+        console.log("otp body",otpBody)
 
 
-        res.status(200).json({
+        return res.status(200).json({
             success:true,
             message:"otp generated successfully",
             otp
@@ -57,7 +59,7 @@ exports.sendOtp=async(req,res)=>{
 }
 
 //signup
-exports.sigUp=async(req,res)=>{
+exports.signup=async(req,res)=>{
     try{
         const {
             firstName,
@@ -66,8 +68,9 @@ exports.sigUp=async(req,res)=>{
             password,
             confirmPassword,
             accountType,
-            contactNumber,
+            
             otp,
+            contactNumber,
         
         }=req.body
 
@@ -94,23 +97,26 @@ exports.sigUp=async(req,res)=>{
 
         //is something missing
 
-        const recentOtp=await OTP.find({email}).sort({createdAt:-1}).limit(1)
-        console.log(recentOtp)
+        const response = await OTP.find({ email }).sort({ createdAt: -1 }).limit(1)
+        console.log(response)
 
-        if(recentOtp.length===0){
+        if(response.length===0){
             return res.status(403).json({
                 success:false,
                 message:"otp not found"
             })
         }
-        else if(otp!==recentOtp){
+        else if(otp !== response[0].otp){
             return res.status(400).json({
                 success:false,
-                message:"otp did not match"
+                message:"otp did not match",
+                otp,response
             })
         }
+        console.log("otp is",response[0].otp)
 
-        const hashedPssword=await bcrypt.hash(password,10);
+        const hashedPassword=await bcrypt.hash(password,10);
+        
 
         const profileDetails=await Profile.create({
             gender:null,
@@ -118,18 +124,17 @@ exports.sigUp=async(req,res)=>{
             about:null,
             contactNumber:null
         })
-        const user=await User.create({
+        
+        const user = await User.create({
             firstName,
             lastName,
             email,
             contactNumber,
-            password:hashedPssword,
+            password: hashedPassword,
             accountType,
-            additionalDetails:profileDetails._id,
-            image:`https://api.dicebeat.com/5.s/initials/svg?seed=${firstName} ${lastName}`,
-
-
-        })
+            additionalDetails: profileDetails._id,
+            image: "  dga"
+        });
         return res.status(200).json({
             success:true,
             message:"user created successfully",
@@ -147,6 +152,8 @@ exports.sigUp=async(req,res)=>{
     }
 }
 
+
+
 exports.login=async(req,res)=>{
     try{
 
@@ -158,7 +165,8 @@ exports.login=async(req,res)=>{
             })
         }
 
-        const user=await User.findOne({email}).populate("additionaldetails")
+        const user=await User.findOne({email}).populate("additionalDetails")
+        console.log(user)
         if(!user){
             return res.status(404).json({
                 success:false,

@@ -1,5 +1,5 @@
 const Course=require("../models/Course")
-const Tag=require("../models/Tags")
+const Tag=require("../models/Category")
 const User=require("../models/User")
 
 const {uploadImageToCloudinary}=require("../utilities/imageUploader")
@@ -80,7 +80,7 @@ exports.createCourse=async(req,res)=>{
     }
 }
 
-exports.showAllCourses=async (req,res)=>{
+exports.getAllCourses=async (req,res)=>{
     try{
 
         const allCourses=await Course.find({},{courseName:true,
@@ -103,6 +103,49 @@ exports.showAllCourses=async (req,res)=>{
         return res.status(404).json({
             success:false,
             message:"cannot get all courses"
+        })
+    }
+}
+
+exports.getCourseDetails=async(req,res)=>{
+    try{
+        const{courseId}=req.body
+        const courseDetails=await Course.find({_id:courseId}
+                                    .poputate({
+                                        path:"instructor",
+                                        populate:{
+                                            path:"additionalDetails"
+                                        }
+                                        
+                                    })
+                
+                                )
+                                .populate("category")
+                                .populate("ratingAndreviews")
+                                .populate({
+                                    path:"courseContent",
+                                    populate:{
+                                        path:"subSection",
+                                    }
+                                })
+                                .exec()
+
+        if(! courseDetails){
+            return res.status(400).json({
+                success:false,
+                message:`cant find course detaisl with provided ${courseId}`
+            })
+        }
+        res.status(200).json({
+            success:true,
+            message:"course details fetched successfully",
+            details:courseDetails,
+        })
+    }
+    catch(err){
+        res.status(400).json({
+            success:false,
+            message:"cant get course details"
         })
     }
 }

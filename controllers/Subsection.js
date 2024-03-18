@@ -1,7 +1,7 @@
 const Section=require("../models/Section")
 const SubSection = require("../models/SubSection")
 const Subsectioin=require("../models/SubSection")
-import {uploadImageToCloudinary} from "../utilities/imageUploader"
+ const uploadImageToCloudinary =require("../utilities/imageUploader")
 
 exports.createSubSection=async(req,res)=>{
     try{

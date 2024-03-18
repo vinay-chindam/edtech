@@ -10,16 +10,19 @@ const otpSchema=new mongoose.Schema({
         type:String,
         required:true,
     },
-    createdAt:{
-        type:Date,
-        default:Date.now()*60*1000
+    createdAt: {
+        type: Date,
+        default: Date.now
     }
+    
     
 })
 
 async function sendVerificationEmail(email,otp){
     try{
+        console.log("printing in otp model before sending mail")
         const mailResponse=await mailSender(email,"verification email from studynotion",otp)
+        console.log("printing in otp model after sending mail")
 
     }
     catch(err){
@@ -30,6 +33,7 @@ async function sendVerificationEmail(email,otp){
 
 otpSchema.pre("save",async function(next){
     await sendVerificationEmail(this.email,this.otp);
+    console.log("printing in otp model")
     next()
 })
 

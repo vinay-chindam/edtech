@@ -1,6 +1,6 @@
 const User=require("../models/User")
 
-exports.uodateProfile=async(req,res)=>{
+exports.updateProfile=async(req,res)=>{
     try{
 
         const {dateOfBirth="", about="", contactNumber="",gender=""}=req.body
